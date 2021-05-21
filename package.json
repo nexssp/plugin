@@ -1,0 +1,22 @@
+{
+  "name": "@nexssp/plugin",
+  "version": "1.0.1",
+  "description": "Plugin system for not only Nexss Programmer.",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/nexssp/plugin.git"
+  },
+  "main": "src/plugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@nexssp/logdebug": "^1.0.15",
+    "fast-glob": "^3.2.5",
+    "marked": "^2.0.3",
+    "marked-terminal": "^4.1.1"
+  }
+}
