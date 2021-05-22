@@ -4,50 +4,57 @@ const os = require('os')
 const { bold, grey } = require('@nexssp/ansi')
 // console.log(path.dirname(path.dirname(process.execPath)));
 
-exports.help = async (entries, plugin, path) => {
-  const aliases = require(`${path}/aliases.json`)
+const helpContent = (entries, plugin, path) => {
+  let aliases = {}
+  try {
+    aliases = require(`${path}/aliases.json`)
+  } catch (e) {}
+
   commandAliases = aliases.invert()
 
   // const EOL = require("os").EOL;
   const EOL = '\n'
-  const commandsHelp = await Promise.all(
-    entries.map(async (entry) => {
-      const helpContent = require('fs').readFileSync(entry).toString().split(EOL)
-      //   console.info(helpContent.toString());
-      const command = entry.match(/commands\/(.*).md$/)[1]
-      // .slice(-1)
-      // .pop()
-      // .replace(".md");
-      //   console.log("!!!!!!", command[1]);
-      //   process.exit(1);
-      // We display 3rd or 1st line from help. Eg 1st can be just header as proper md file
-      const cmd = command.replace(/\.js/, '')
-      let cmdDisplay = cmd
-      if (commandAliases[cmd]) {
-        cmdDisplay = `${cmd}|${commandAliases[cmd]}`
-      }
+  const commandsHelp = entries.map((entry) => {
+    const helpContent = require('fs').readFileSync(entry).toString().split(EOL)
+    //   console.info(helpContent.toString());
+    const command = entry.match(/commands\/(.*).md$/)[1]
+    // .slice(-1)
+    // .pop()
+    // .replace(".md");
+    //   console.log("!!!!!!", command[1]);
+    //   process.exit(1);
+    // We display 3rd or 1st line from help. Eg 1st can be just header as proper md file
+    const cmd = command.replace(/\.js/, '')
+    let cmdDisplay = cmd
+    if (commandAliases[cmd]) {
+      cmdDisplay = `${cmd}|${commandAliases[cmd]}`
+    }
 
-      let pluginDisplay = plugin
-      if (aliases[plugin]) {
-        pluginDisplay = `${plugin}|${aliases[plugin]}`
-      }
+    let pluginDisplay = plugin
+    if (aliases[plugin]) {
+      pluginDisplay = `${plugin}|${aliases[plugin]}`
+    }
 
-      if (cmdDisplay === '.gitkeep') {
-        cmdDisplay = ''
-      }
+    if (cmdDisplay === '.gitkeep') {
+      cmdDisplay = ''
+    }
 
-      const commandHelp =
-        cmd !== plugin
-          ? `${pluginDisplay} ${cmdDisplay}` // [args]
-          : `${pluginDisplay}`
+    const commandHelp =
+      cmd !== plugin
+        ? `${pluginDisplay} ${cmdDisplay}` // [args]
+        : `${pluginDisplay}`
 
-      return {
-        command: commandHelp,
-        commandDesc: helpContent[2] || helpContent[0],
-      }
-    })
-  )
-  if (global['NEXSSP_VERSION'])
+    return {
+      command: commandHelp,
+      commandDesc: helpContent[2] || helpContent[0],
+    }
+  })
+
+  return commandsHelp
+}
+
+const helpDisplay = (commandsHelp) => {
+  if (global['NEXSSP_VERSION'] && !global['NEXSSP_LOGO_DISPLAYED']) {
     console.log(
       `                ____                                                              
 |..          | |             \`\`..      ..''             ..''''             ..'''' 
@@ -58,13 +65,14 @@ Programmer ${bold(NEXSSP_VERSION)}, NodeJS ${process.version}, OS: ${
         process.platform
       } ${os.release()}  `
     )
-
+    global['NEXSSP_LOGO_DISPLAYED'] = true
+  }
   commandsHelp.flat().forEach((e) => {
     console.log(grey('nexss'), bold(e.command), e.commandDesc)
   })
-  // console.log(commandsHelp.flat());
-  console.log(bold("To display help add 'help': nexss command help OR nexss package help"))
-  //   console.log(JSON.stringify(result));
+  if (!global['NEXSSP_LOGO_DISPLAYED']) {
+    console.log(bold("To display help add 'help': nexss command help OR nexss package help"))
+  }
 }
 
-// await fs.promises.mkdir("/tmp/a/apple", { recursive: true });
+module.exports = { helpDisplay, helpContent }

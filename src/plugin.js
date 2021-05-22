@@ -51,13 +51,30 @@ function nexssPlugin({
 
   _NEXSS_COMMANDS_FOLDER = _path.join(path, commandsPath)
 
+  function getHelpFiles() {
+    const fg = require('fast-glob')
+    const files = fg.sync([`${_NEXSS_COMMANDS_FOLDER}/*.md`.replace(/\\/g, '/')], {
+      ignore: _ignore,
+    })
+
+    return files
+  }
+
+  function helpContent() {
+    const { helpContent } = require('./help')
+    const helpFiles = getHelpFiles()
+    // console.log(helpFiles, __name, path);
+    return helpContent(helpFiles, __name, path)
+    // process.exit(1);
+  }
+
   // If dynamic runCommand was executed recursive so already passed.
   if (aliases || trigger) {
-    trigger = aliases ? new RegExp(`(${__name}|${aliases.join('|')})`) : trigger
+    trigger = aliases ? new RegExp(`^(${__name}|${aliases.join('|')})$`) : trigger
     _log.di(`@plugin: Trigger '${trigger}' exists - check..`)
     if (!triggerValue) {
-      _log.di(`@plugin: TriggerValue does not exist. Using process.argv[2]`)
       triggerValue = process.argv[2]
+      _log.di(`@plugin: TriggerValue does not exist. Using process.argv[2]:`, triggerValue)
     }
 
     // const emptyPluginObject = {
@@ -69,17 +86,18 @@ function nexssPlugin({
     if (trigger instanceof RegExp) {
       if (!trigger.test(triggerValue)) {
         _log.dy(`@plugin: REGEXP: Trigger ${triggerValue} didn't pass the test: ${trigger}`)
-        return false
+        return { getHelpFiles, helpContent }
       } else {
         _log.dg(`@plugin: REGEXP: Trigger ${triggerValue} passed the test: ${trigger}`)
       }
     } else if (triggerValue !== trigger) {
-      _log.d(`@plugin: STRING: Trigger ${triggerValue} didn't pass the test: ${trigger}`)
-      return false
+      _log.dy(`@plugin: STRING: Trigger ${triggerValue} didn't pass the test: ${trigger}`)
+      return { getHelpFiles, helpContent }
     } else {
       _log.dg(`@plugin: STRING: Trigger ${triggerValue} passed the test: ${trigger}`)
     }
   }
+
   let _fs
 
   let _version
@@ -107,27 +125,19 @@ function nexssPlugin({
     _started = true
   }
 
-  function getHelpFiles() {
-    const fg = require('fast-glob')
-    const files = fg.sync([`${_NEXSS_COMMANDS_FOLDER}/*.md`.replace(/\\/g, '/')], {
-      ignore: _ignore,
-    })
-
-    return files
-  }
-
   const getAliases = () => {
     if (_fs.existsSync(`${path}/aliases.json`)) {
       return require(`${path}/aliases.json`)
     }
   }
 
-  function displayCommandHelp() {
-    const { help } = require('./help')
-    const helpFiles = getHelpFiles()
-    // console.log(helpFiles, __name, path);
-    help(helpFiles, __name, path)
-    // process.exit(1);
+  function validateArguments(command, args) {
+    _log.di('Validating arguments..', command, args)
+    if (command && command.startsWith('-')) {
+      _log.error('Command cannot starts with -')
+      process.exit(0)
+    }
+    return true
   }
 
   // 'Dynamic' is used when first command does not exist.
@@ -136,12 +146,29 @@ function nexssPlugin({
   // then xxxoptional is the dynamic.
   // we us it for example for dynamic variable
   function runCommand(command, args = [], dynamic, localArgs = { through }) {
+    // If we run from other clients, we can see that there is passed plugin name
+    // as parameter, we move this out
+    if (command === __name) {
+      _log.dc('Shifting arguments [first is the same as plugin name] from:', command, args)
+      command = args[0]
+      args = args.slice(1)
+    }
+
     _log.dg(`@plugin: running command `, {
       command,
       args,
       dynamic,
       localArgs,
     })
+    if (!validateArguments(command, args)) {
+      return true
+    }
+
+    if (command == undefined) {
+      _log.dg(`@plugin: displaying help..`)
+      displayCommandHelp()
+      return true
+    }
 
     const commandAliases = getAliases()
     if (commandAliases && commandAliases[command]) {
@@ -150,7 +177,6 @@ function nexssPlugin({
       _log.dg(`@plugin: aliases not found. `)
     }
 
-    _log.dm()
     // return false if not exists and go through is enabled (we just go through)
     if (!command && through) {
       return false
@@ -165,11 +191,11 @@ function nexssPlugin({
 
     const router = _path.join(subpluginPath, '_router.js')
     _log.dy(`@plugin: checking router at:`, router)
-    subpluginPath
 
     if (_fs.existsSync(router)) {
-      _log.dg(`@plugin: router has been found:`, router)
-      const resultFromRouter = require(router)(args[0], args.slice(1), command, localArgs)
+      _log.dg(`@plugin ${__name}: router has been found:`, router)
+
+      const resultFromRouter = require(router)(command, args, command, localArgs)
       _log.dg(`@plugin: router returned`, resultFromRouter)
       // console.log({ resultFromRouter });
       return resultFromRouter
@@ -194,7 +220,7 @@ function nexssPlugin({
         _log.dr(`@plugin: command NOT found at:`, commandFile, 'Loading help for this command')
         _log.dy(`Command '${command}' has not been found for ${_name}.`)
         displayCommandHelp()
-        return true
+        // return true
       }
     }
 
@@ -203,12 +229,21 @@ function nexssPlugin({
     }
   }
 
+  function displayCommandHelp() {
+    const { helpDisplay, helpContent } = require('./help')
+    const helpFiles = getHelpFiles()
+    // console.log(helpFiles, __name, path);
+    helpDisplay(helpContent(helpFiles, __name, path))
+    // process.exit(1);
+  }
+
   return {
+    displayCommandHelp,
+    helpContent,
     getHelpFiles,
     getAliases,
     start,
     runCommand,
-    displayCommandHelp,
   }
 }
 
@@ -221,4 +256,5 @@ function getPluginPath(plugin) {
 }
 
 nexssPlugin.getPluginPath = getPluginPath
+nexssPlugin.helpDisplay = require('./help').helpDisplay
 module.exports = nexssPlugin
