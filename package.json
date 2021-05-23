@@ -1,6 +1,6 @@
 {
   "name": "@nexssp/plugin",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Plugin system for not only Nexss Programmer.",
   "repository": {
     "type": "git",
