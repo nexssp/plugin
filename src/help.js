@@ -1,7 +1,8 @@
-require('@nexssp/extend')('array', 'object') // array flat / nodejs 10 + invert for object
 // const aliases = require("../aliases.json").invert();
 const os = require('os')
 const { bold, grey } = require('@nexssp/ansi')
+const { flat } = require('@nexssp/extend/array')
+const { invert } = require('@nexssp/extend/object')
 // console.log(path.dirname(path.dirname(process.execPath)));
 
 const helpContent = (entries, plugin, path) => {
@@ -10,7 +11,7 @@ const helpContent = (entries, plugin, path) => {
     aliases = require(`${path}/aliases.json`)
   } catch (e) {}
 
-  commandAliases = aliases.invert()
+  commandAliases = invert(aliases)
 
   // const EOL = require("os").EOL;
   const EOL = '\n'
@@ -68,11 +69,11 @@ Programmer ${bold(NEXSSP_VERSION)}, NodeJS ${process.version}, OS: ${
     global['NEXSSP_LOGO_DISPLAYED'] = true
   }
   if (global['NEXSSP_VERSION']) {
-    commandsHelp.flat().forEach((e) => {
+    flat(commandsHelp).forEach((e) => {
       console.log(grey('nexss'), bold(e.command), e.commandDesc)
     })
   } else {
-    commandsHelp.flat().forEach((e) => {
+    flat(commandsHelp).forEach((e) => {
       console.log(bold(e.command.trim()), e.commandDesc)
     })
   }
