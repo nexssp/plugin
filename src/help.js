@@ -67,11 +67,14 @@ Programmer ${bold(NEXSSP_VERSION)}, NodeJS ${process.version}, OS: ${
     )
     global['NEXSSP_LOGO_DISPLAYED'] = true
   }
-  commandsHelp.flat().forEach((e) => {
-    console.log(grey('nexss'), bold(e.command), e.commandDesc)
-  })
-  if (!global['NEXSSP_LOGO_DISPLAYED']) {
-    console.log(bold("To display help add 'help': nexss command help OR nexss package help"))
+  if (global['NEXSSP_VERSION']) {
+    commandsHelp.flat().forEach((e) => {
+      console.log(grey('nexss'), bold(e.command), e.commandDesc)
+    })
+  } else {
+    commandsHelp.flat().forEach((e) => {
+      console.log(bold(e.command.trim()), e.commandDesc)
+    })
   }
 }
 
