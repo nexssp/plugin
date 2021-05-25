@@ -10,7 +10,7 @@
  * @param {regexp|string} trigger - plugin cmd needs to pass the test
  * @param {string} triggerValue - default is provess.argv[2]
  * @param {string} commandsPath - folder where the commands are
- * @param {string} benchmark - display executed time if enabled
+
  * @param {array} ommit - ommits files eg. '!*\/**\/*.nexss-test.js'
  * @param {bool} through - if true, if no criteria met, it will go to the next step.
  */
@@ -23,7 +23,6 @@ function nexssPlugin({
   path,
   commandsPath = 'src/cli/commands',
   through,
-  benchmark = true,
   ommit = [],
 }) {
   const { bold, green, red } = require('@nexssp/ansi')
@@ -53,10 +52,11 @@ function nexssPlugin({
 
   function getHelpFiles() {
     const fg = require('fast-glob')
-    const files = fg.sync([`${_NEXSS_COMMANDS_FOLDER}/*.md`.replace(/\\/g, '/')], {
+    const helpGlob = `${_NEXSS_COMMANDS_FOLDER}/*.md`.replace(/\\/g, '/')
+    _log.di(`@help glob:`, helpGlob)
+    const files = fg.sync([helpGlob], {
       ignore: _ignore,
     })
-
     return files
   }
 
@@ -101,16 +101,20 @@ function nexssPlugin({
   let _fs
 
   let _version
-  let _benchmark = benchmark
 
   const start = () => {
     _log.dg(`@plugin: starting ${_name} at: `, commandsPath)
     _fs = require('fs')
-
+    let info = _name
     const _packageJsonPath = _path.join(path, 'package.json')
     if (_fs.existsSync(_packageJsonPath)) {
       const { version, name } = require(_packageJsonPath)
+      if (process.argv.includes('--version')) {
+        console.log(version)
+        process.exit(0)
+      }
       _version = version
+      info = name
       if (_name && _name !== name) {
         throw new Error(
           red(`Name of the plugin specified '${_name}' has not been matched with the '${name}'`)
@@ -118,9 +122,10 @@ function nexssPlugin({
       }
     }
 
-    if (_name && !through) {
-      console.log(`${_name}@${bold(green(_version))}`)
-      if (_benchmark) console.time(bold(_name))
+    if (!through && info) {
+      console.log(`${info} - v${bold(green(_version))}`)
+    } else {
+      _log.dy(`@plugin: name not found (package.json): `, commandsPath)
     }
     _started = true
   }
@@ -182,7 +187,7 @@ function nexssPlugin({
       return false
     }
 
-    if (!command || command === 'help') {
+    if (command === 'help') {
       displayCommandHelp()
       return
     }
@@ -217,15 +222,16 @@ function nexssPlugin({
           return true
         }
       } else {
+        if (!through) {
+          console.log(bold(red(`'${command}' not found.`)))
+          // process.exitCode = 1
+          console.log(bold('Available Commands:'))
+        }
         _log.dr(`@plugin: command NOT found at:`, commandFile, 'Loading help for this command')
         _log.dy(`Command '${command}' has not been found for ${_name}.`)
         displayCommandHelp()
         // return true
       }
-    }
-
-    if (_name && !through) {
-      if (_benchmark) console.timeEnd(bold(_name))
     }
   }
 
