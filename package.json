@@ -9,7 +9,11 @@
   "scripts": {
     "test": "npx @nexssp/test"
   },
-  "keywords": [],
+  "keywords": [
+    "plugin system",
+    "nexss",
+    "nexss programmer"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
