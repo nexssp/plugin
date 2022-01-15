@@ -1,6 +1,6 @@
 // const aliases = require("../aliases.json").invert();
 const os = require('os')
-const { bold, grey } = require('@nexssp/ansi')
+const { bold, gray } = require('@nexssp/ansi')
 const { flat } = require('@nexssp/extend/array')
 const { invert } = require('@nexssp/extend/object')
 // console.log(path.dirname(path.dirname(process.execPath)));
@@ -70,7 +70,7 @@ Programmer ${bold(NEXSSP_VERSION)}, NodeJS ${process.version}, OS: ${
   }
   if (global['NEXSSP_VERSION']) {
     flat(commandsHelp).forEach((e) => {
-      console.log(grey('nexss'), bold(e.command), e.commandDesc)
+      console.log(gray('nexss'), bold(e.command), e.commandDesc)
     })
   } else {
     flat(commandsHelp).forEach((e) => {
