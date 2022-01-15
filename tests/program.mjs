@@ -1,7 +1,8 @@
-const nexssPlugin = require('..')
+import nexssPlugin from '../index.mjs'
+import { resolve } from 'path'
 
 const plugin1 = nexssPlugin({
-  path: require('path').resolve('.'),
+  path: resolve('.'),
   commandsPath: 'tests/commands',
 })
 

@@ -19,7 +19,7 @@ function nexssPlugin({
   plugin /* required */,
   aliases,
   trigger,
-  triggerValue /* default is provess.argv[2] */,
+  triggerValue /* default is process.argv[2] */,
   path,
   commandsPath = 'src/cli/commands',
   through,
@@ -61,7 +61,7 @@ function nexssPlugin({
   }
 
   function helpContent() {
-    const { helpContent } = require('./help')
+    const { helpContent } = require('./src/help')
     const helpFiles = getHelpFiles()
     // console.log(helpFiles, __name, path);
     return helpContent(helpFiles, __name, path)
@@ -217,7 +217,7 @@ function nexssPlugin({
           mdExploded.pop()
           const helpFile = `${mdExploded.join('.')}.md`
           const content = _fs.readFileSync(helpFile).toString()
-          const { displayMarkdown } = require('../lib/markdown')
+          const { displayMarkdown } = require('./lib/markdown')
           displayMarkdown(content)
           return true
         }
@@ -236,21 +236,25 @@ function nexssPlugin({
   }
 
   function displayCommandHelp() {
-    const { helpDisplay, helpContent } = require('./help')
+    const { helpDisplay, helpContent } = require('./src/help')
     const helpFiles = getHelpFiles()
     // console.log(helpFiles, __name, path);
     helpDisplay(helpContent(helpFiles, __name, path))
     // process.exit(1);
   }
 
-  return {
-    displayCommandHelp,
-    helpContent,
-    getHelpFiles,
-    getAliases,
-    start,
-    runCommand,
-  }
+  const { applyTracker } = require('@nexssp/logdebug/tracker')
+  return applyTracker(
+    {
+      displayCommandHelp,
+      helpContent,
+      getHelpFiles,
+      getAliases,
+      start,
+      runCommand,
+    },
+    null
+  )
 }
 
 function getPluginPath(plugin) {
@@ -262,5 +266,5 @@ function getPluginPath(plugin) {
 }
 
 nexssPlugin.getPluginPath = getPluginPath
-nexssPlugin.helpDisplay = require('./help').helpDisplay
+nexssPlugin.helpDisplay = require('./src/help').helpDisplay
 module.exports = nexssPlugin

@@ -1,26 +1,22 @@
 {
   "name": "@nexssp/plugin",
   "version": "1.0.5",
-  "description": "Plugin system for not only Nexss Programmer.",
+  "description": "Plugin system for not only the Nexss Programmer.",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/nexssp/plugin.git"
   },
-  "main": "src/plugin.js",
   "scripts": {
-    "test": "nexssp-test"
+    "test": "npx @nexssp/test"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@nexssp/extend": "^2.0.1",
-    "@nexssp/logdebug": "^1.0.15",
-    "fast-glob": "^3.2.5",
-    "marked": "^2.0.3",
-    "marked-terminal": "^4.1.1"
-  },
-  "devDependencies": {
-    "@nexssp/test": "^1.1.1"
+    "@nexssp/ansi": "^1.1.5",
+    "@nexssp/extend": "^2.0.9",
+    "@nexssp/logdebug": "^1.0.20",
+    "@nexssp/markdown": "^1.0.1",
+    "fast-glob": "^3.2.11"
   }
 }
