@@ -123,9 +123,11 @@ function nexssPlugin({
     }
 
     if (!through && info) {
-      console.log(`${info} - v${bold(green(_version))}`)
+      // console.log(`${info} - v${bold(green(_version))}`) // Removed to not display info about plugin on every run, just on debug
+      _log.dy(`${info} - v${bold(green(_version))}`)
     } else {
       _log.dy(`@plugin: name not found (package.json): `, commandsPath)
+
     }
     _started = true
   }
