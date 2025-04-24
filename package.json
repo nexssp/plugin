@@ -1,6 +1,6 @@
 {
   "name": "@nexssp/plugin",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Plugin system for not only the Nexss Programmer.",
   "types": "./index.d.ts",
   "files": [

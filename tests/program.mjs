@@ -1,4 +1,4 @@
-import nexssPlugin from '../index.mjs'
+import nexssPlugin from '..'
 import { resolve } from 'path'
 
 const plugin1 = nexssPlugin({

@@ -1,5 +1,5 @@
 import NexssPlugin from './index.js';
 
-export const getPluginPath = cjsModule.getPluginPath;
-export const helpDisplay = cjsModule.helpDisplay;
+export const getPluginPath = NexssPlugin.getPluginPath;
+export const helpDisplay = NexssPlugin.helpDisplay;
 export default NexssPlugin;
