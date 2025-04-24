@@ -1,7 +1,20 @@
 {
   "name": "@nexssp/plugin",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "description": "Plugin system for not only the Nexss Programmer.",
+  "types": "./index.d.ts",
+  "files": [
+    "index.esm.js",
+    "index.js",
+    "index.d.ts"
+  ],
+  "exports": {
+    ".": {
+      "import": "./index.esm.js",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/nexssp/plugin.git"
@@ -17,10 +30,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@nexssp/ansi": "^1.1.5",
+    "@nexssp/ansi": "^1.2.2",
     "@nexssp/extend": "^2.0.9",
-    "@nexssp/logdebug": "^1.0.20",
-    "@nexssp/markdown": "^1.0.1",
-    "fast-glob": "^3.2.11"
+    "@nexssp/logdebug": "^1.1.0",
+    "@nexssp/markdown": "^1.1.0",
+    "fast-glob": "^3.3.3"
   }
 }
